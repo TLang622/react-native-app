@@ -9,6 +9,8 @@ import {
   Navigator,
   TouchableHighlight,
   TouchableOpacity,
+  TextInput,
+  Alert,
 } from 'react-native';
 import ScrollableTabView, {DefaultTabBar, } from 'react-native-scrollable-tab-view';
 var THUMB_URLS = [
@@ -39,6 +41,10 @@ class HelloWorldApp extends Component {
                 return <MainScreen navigator={navigator} title='Main' />
               case 'tab1':
                 return <MovieView navigator={navigator} onBack={() => {navigator.pop()}} title='tab1' />;
+              case 'login':
+                return <LoginView navigator={navigator} />
+              case 'regist':
+                return <RegistView navigator={navigator} />
             }
         }}
         />
@@ -57,7 +63,7 @@ class MainScreen extends Component {
   }
   _pressRow() {
     this.props.navigator.push({
-      id:'tab1',
+      id: 'tab1',
     })
   }
   _renderRow(rowData, sectionID, rowID) {
@@ -75,6 +81,16 @@ class MainScreen extends Component {
       </TouchableOpacity>
     )
   };
+  _pressLogin() {
+    this.props.navigator.push({
+      id: 'login'
+    })
+  }
+  _pressRegist() {
+    this.props.navigator.push({
+      id: 'regist'
+    })
+  }
   render() {
     return (
       <ScrollableTabView tabBarPosition='bottom' renderTabBar={() => <DefaultTabBar />} onChangeTab={() => {}}>
@@ -85,12 +101,19 @@ class MainScreen extends Component {
             />
           </View>
           <View tabLabel='Tab #2' style={{flex:1}}><Text>fuck</Text></View>
-          <View tabLabel='Tab #3' style={{flex:1}}><Text>you</Text></View>
+          <View tabLabel='Tab #3' style={{flex:1}}>
+            <TouchableOpacity onPress={this._pressLogin.bind(this)}>
+              <Text>登陆</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={this._pressRegist.bind(this)}>
+              <Text>注册</Text>
+            </TouchableOpacity>
+          </View>
         </ScrollableTabView>
       )
   }
 };
-class MovieView extends Component{
+class MovieView extends Component {
   render(){
     return (
       <View>
@@ -102,6 +125,115 @@ class MovieView extends Component{
     );
   }
 };
+
+class LoginView extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      name: '',
+      password: '',
+    };
+  }
+  _pressSubmit() {
+    if(this.state.name && this.state.password) {
+      fetch('https://mywebsite.com/endpoint/', {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: this.state.name,
+          password: this.state.password,
+        })
+      }).then((response) => {
+        Alert.alert(
+          '响应结果',
+          '成功'
+          )
+        console.log(response);
+      }).catch((error) => {
+        Alert.alert(
+          '响应结果',
+          '错误'
+          )
+        console.log(error);
+      })
+    }else{
+      Alert.alert(
+      '来自星星的提示',
+      '你TM忘记输入账号或密码了'
+      )
+    }
+  }
+  render() {
+    return (
+      <View>
+        <Text>账号：</Text>
+        <TextInput placeholder='输入账号别bb' onChangeText={(val) => this.setState({name: val})} />
+        <Text>密码：</Text>
+        <TextInput secureTextEntry={true} placeholder='输入密码啦笨蛋' onChangeText={(val) => this.setState({password: val})} />
+        <TouchableOpacity onPress={this._pressSubmit.bind(this)}>
+          <Text style={{fontSize: 30}}>登陆</Text>
+        </TouchableOpacity>
+      </View>
+      )
+  }
+}
+class RegistView extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      name: '',
+      password: '',
+    };
+  }
+  _pressRegist() {
+    if(this.state.name && this.state.password) {
+      fetch('https://mywebsite.com/endpoint/', {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: this.state.name,
+          password: this.state.password,
+        })
+      }).then((response) => {
+        Alert.alert(
+          '响应结果',
+          '成功'
+          )
+        console.log(response);
+      }).catch((error) => {
+        Alert.alert(
+          '响应结果',
+          '错误'
+          )
+        console.log(error);
+      })
+    }else{
+      Alert.alert(
+      '来自星星的提示',
+      '你TM忘记输入账号或密码了'
+      )
+    }
+  }
+  render() {
+    return (
+      <View>
+        <Text>账号：</Text>
+        <TextInput placeholder='输入账号别bb' onChangeText={(val) => this.setState({name: val})} />
+        <Text>密码：</Text>
+        <TextInput secureTextEntry={true} placeholder='输入密码啦笨蛋' onChangeText={(val) => this.setState({password: val})} />
+        <TouchableOpacity onPress={this._pressRegist.bind(this)}>
+          <Text style={{fontSize: 30}}>注册</Text>
+        </TouchableOpacity>
+      </View>
+      )
+  }
+}
 
 const styles = StyleSheet.create({
   flexContain: {
