@@ -7,28 +7,26 @@ import {
 	View,
 	AsyncStorage,
 	ToolbarAndroid,
-	StyleSheet 
+	StyleSheet,
+	Image,
+	TouchableOpacity
 } from 'react-native';
 
 export default class Toolbar extends Component {
-	constructor(props) {
-   super(props);
+ 	constructor(props) {
+   	super(props);
   }
   render() {
     return (
-      <ToolbarAndroid
-	      navIcon ={require('../image/login.png')}
-	      style={styles.toolbar}
-	      title="标题"
-	      actions={[{title: 'Settings', icon: require('../image/login.png'), show: 'always'}]}
-	      onActionSelected={this.onActionSelected}
-	      onIconClicked ={this.props.onIcon} 
-	       />
+      <View style={styles.toolbar}>
+      	<TouchableOpacity onPress={this.props.onIcon}>
+					<Image source={require('../image/icon.png')} />
+      	</TouchableOpacity>
+      	<Text>{this.props.title}</Text>
+      </View>
     )
   }
-  onActionSelected(position) {
-	  alert(position)
-	}
+
 	onIconClicked(){
 		const { navigator } = this.props;
 		alert(navigator)
@@ -41,8 +39,9 @@ export default class Toolbar extends Component {
 	}
 }
 const styles =StyleSheet.create({  
-  toolbar: {  
-    backgroundColor: '#e9eaed',  
-    height: 56,  
+  toolbar: {
+    backgroundColor: '#e9eaed',
+    height: 60,
+    flexDirection: 'row',
   },  
 }); 
