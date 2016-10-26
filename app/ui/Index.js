@@ -32,6 +32,7 @@ export default class Index extends Component {
       super(props);
       this.state = {
         questionsData: [],
+        questionMark: [],
         loaded1: false,
         loaded2: false,
         dataSource: new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2}),
@@ -41,7 +42,7 @@ export default class Index extends Component {
 
     componentDidMount() {
         // storage.remove({
-        //     key: 'loginState'
+        //     key: 'questions'
         // });
         storage.load({
             key: 'loginState',
@@ -75,7 +76,22 @@ export default class Index extends Component {
               loaded1: true,
               dataSource: this.state.dataSource.cloneWithRows(ret)
             });
-            //如果找到数据，则在then方法中返回
+            //做题记录
+            var _this = this;
+            var questionMark = [];
+            ret.map(function(value, index) {
+              questionMark[index] = 0;
+              storage.load({
+                key: 'questionsMark' + value.id,
+              }).then(result => {
+                questionMark[index] = result;
+                _this.setState({
+                  questionMark: questionMark
+                });
+              }).catch(err => {
+                //console.log(err.message);
+              });
+            });
         }).catch(err => {
             //如果没有找到数据且没有同步方法，或者有其他异常，则在catch中返回
             console.log(err);
@@ -107,7 +123,10 @@ export default class Index extends Component {
             console.log(err);
             NetUitl.getJson('http://api.smseec.org:8080/questions/?page_size=5000',(response) => {
               if(!response.results) { return; }
-              var responseDeal = [[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]];
+              var responseDeal = [];
+              for(var i=0; i<response.results.length; i++) {
+                responseDeal[i] = [];
+              }
               for(var i=0; i<response.results.length; i++) {
                 responseDeal[response.results[i].category - 1].push(response.results[i]);
               }
@@ -120,7 +139,8 @@ export default class Index extends Component {
                 rawData: responseDeal
               });
             });
-        });  
+        });   
+
     }
 
     onTest() {
@@ -154,7 +174,7 @@ export default class Index extends Component {
     onPractice(id, name) {
       console.log(id, name)
       const { navigator } = this.props;
-      if (navigator && this.state.questionsData[id - 1]) {
+      if (navigator && this.state.questionsData[id - 1].length > 0) {
         navigator.push({
           name : 'Tab1',
           component : Tab1,
@@ -211,7 +231,7 @@ export default class Index extends Component {
           <View style={ListStyle.listRow}>
             <Image source={require('../image/icon.png')} />
             <Text>{rowData.name}</Text>
-            <Image source={require('../image/icon.png')} />
+            <Text>{this.state.questionMark[rowData.id - 1]}</Text>
             <Image source={require('../image/icon.png')} />
           </View>
         </TouchableOpacity>
