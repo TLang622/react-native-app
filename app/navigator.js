@@ -25,7 +25,7 @@ export default class navigator extends Component {
       <Navigator
         initialRoute = {{name : this.state.defaultName , component: this.state.defaultComponent}}
         configureScene = {(route) => {
-          return Navigator.SceneConfigs.VerticalDownSwipeJump;
+          return Navigator.SceneConfigs.FadeAndroid;
         }}
         renderScene={(route,navigator) => {
             let Component = route.component;
