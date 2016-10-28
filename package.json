@@ -8,8 +8,11 @@
   "dependencies": {
     "react": "15.3.2",
     "react-native": "0.34.0",
+    "react-native-check-box": "^1.0.1",
     "react-native-nav": "^1.1.4",
     "react-native-scrollable-tab-view": "^0.6.0",
-    "react-native-storage": "^0.1.4"
+    "react-native-sk-countdown": "^1.0.1",
+    "react-native-storage": "^0.1.4",
+    "react-timer-mixin": "^0.13.3"
   }
 }

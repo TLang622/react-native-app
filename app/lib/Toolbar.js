@@ -26,17 +26,6 @@ export default class Toolbar extends Component {
       </View>
     )
   }
-
-	onIconClicked(){
-		const { navigator } = this.props;
-		alert(navigator)
-      if (navigator) {
-        navigator.push({
-          name : 'Tab2',
-          component : Tab2,
-        });
-      }
-	}
 }
 const styles =StyleSheet.create({  
   toolbar: {

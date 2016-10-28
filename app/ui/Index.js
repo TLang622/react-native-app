@@ -149,6 +149,10 @@ export default class Index extends Component {
         navigator.push({
           name : 'Tab2',
           component : Tab2,
+          params: {
+            name: '模拟考试',
+            data: this.state.questionsData[2]
+          }
         });
       }
     }

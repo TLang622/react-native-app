@@ -34,16 +34,16 @@ export default class Tab1 extends Component {
 
   componentDidMount() {
     //console.log(this.props.data.length)
-    storage.load({
-      key: 'questionsMark' + this.props.data[0].category,
-    }).then(ret => {
-      console.log(ret)
-      navigator.push({
-        title: ret + '\/' + this.props.data.length,
-        index: ret,
-      });
+    // storage.load({
+    //   key: 'questionsMark' + this.props.data[0].category,
+    // }).then(ret => {
+    //   console.log(ret)
+    //   navigator.push({
+    //     title: ret + '\/' + this.props.data.length,
+    //     index: ret,
+    //   });
 
-    }).catch(err => {})
+    // }).catch(err => {})
   }
   render() {
     return (
