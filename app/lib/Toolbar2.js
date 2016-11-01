@@ -9,7 +9,8 @@ import {
 	ToolbarAndroid,
 	StyleSheet,
 	Image,
-	TouchableOpacity
+	TouchableOpacity,
+  Alert
 } from 'react-native';
 
 export default class Toolbar extends Component {
@@ -23,7 +24,7 @@ export default class Toolbar extends Component {
   }
   componentDidMount() {
     //设置考试时间，默认45分钟
-    var leftTime=45*60*1000;
+    var leftTime=1*60*1000;
     this.timer = setInterval(() => { 
       var leftsecond = parseInt(leftTime/1000);
       var day=Math.floor(leftsecond/(60*60*24)); 
@@ -35,6 +36,7 @@ export default class Toolbar extends Component {
         this.timer && clearTimeout(this.timer);
         //时间到了，这里还要处理考试结果的
         alert('考试结束');
+        this.props.onSubmit();
       }
       this.setState({
         hour: hour<10 ? '0'+hour : hour,
@@ -44,18 +46,38 @@ export default class Toolbar extends Component {
     }, 1000);
     
   }
+  componentWillReceiveProps() {
+    this.timer && clearTimeout(this.timer);
+  }
   componentWillUnmount() {
     this.timer && clearTimeout(this.timer);
   }
   render() {
     return (
       <View style={styles.toolbar}>
-      	<TouchableOpacity onPress={this.props.onIcon}>
+      	<TouchableOpacity onPress={() => Alert.alert(
+            '',
+            '是否退出考试',
+            [
+              {text: '确定', onPress: () => this.props.onIcon()},
+              {text: '取消', onPress: () => console.log('取消')},
+            ]
+          )}>
 					<Image source={require('../image/icon.png')} />
       	</TouchableOpacity>
         <Text>{this.state.hour}:{this.state.minute}:{this.state.second}</Text>
         <Text>{this.props.title}</Text>
       	<TouchableOpacity onPress={this.props.onList}>
+          <Image source={require('../image/icon.png')} />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => Alert.alert(
+            '',
+            '是否提交考试',
+            [
+              {text: '确定', onPress: () => this.props.onSubmit()},
+              {text: '取消', onPress: () => console.log('取消')},
+            ]
+          )}>
           <Image source={require('../image/icon.png')} />
         </TouchableOpacity>
       </View>

@@ -15,7 +15,9 @@ import {
 } from 'react-native';
 import Toolbar from '../lib/Toolbar2';
 import Index from '../ui/Index';
+import Result from '../ui/Result';
 var globalListShow = false;
+var savedData = [];
 export default class Tab2 extends Component {
   constructor(props){
     super(props);
@@ -36,7 +38,22 @@ export default class Tab2 extends Component {
     });
     globalListShow=!globalListShow;
   }
+  onSubmit() {
+    const { navigator } = this.props;
+    if (navigator) {
+      navigator.push({
+        name : 'Result',
+        component : Result,
+        params: {
+          name: '考试结果',
+          data: this.props.data,
+          savedData: savedData
+        }
+      });
+    }
+  }
   componentDidMount() {
+    storage.clearMapForKey('tab2Data');
     //console.log(this.props.data.length)
   }
   render() {
@@ -47,12 +64,13 @@ export default class Tab2 extends Component {
         configureScene = {(route) => {
           return Navigator.SceneConfigs.FadeAndroid;
         }}
-        navigationBar={<Toolbar title={this.props.name} onList={this.onList.bind(this)} onIcon={this.onIcon.bind(this)}/>}
+        navigationBar={<Toolbar title={this.props.name} onSubmit={this.onSubmit.bind(this)} onList={this.onList.bind(this)} onIcon={this.onIcon.bind(this)}/>}
         sceneStyle={{}}
         renderScene={(route, navigator) => {
           return (  
             <MyScene
               title={route.title}
+              savedData = {route.params}
               index ={route.index}
               data={this.props.data}
               list={this.state.list} 
@@ -65,6 +83,7 @@ export default class Tab2 extends Component {
                 navigator.push({
                   title: nextIndex + '\/' + this.props.data.length,
                   index: nextIndex,
+                  params: savedData
                 });
               }}
               onBack={() => {
@@ -73,6 +92,7 @@ export default class Tab2 extends Component {
                   navigator.push({
                     title: preIndex + '\/' + this.props.data.length,
                     index: preIndex,
+                    params: savedData
                   });
                 }
               }}
@@ -81,6 +101,7 @@ export default class Tab2 extends Component {
                 navigator.push({
                   title: rowData + '\/' + this.props.data.length,
                   index: rowData,
+                  params: savedData
                 });
               }}
             />
@@ -121,6 +142,7 @@ class MyScene extends Component {
         };
         this.props.data.map(function(value, index) {
           value.checked = false;
+          value.selected = [];
           return value;
         })
     }
@@ -188,21 +210,71 @@ class MyScene extends Component {
         return true;
       },
     });
+
+    
   }
+
   componentWillReceiveProps() {
     this.setState({
       listShow: globalListShow
     });
   }
-  onClick(data) {
-    data.checked = !data.checked;
+  onClick(data, selected) {
+    if(data.selected) {
+      var mark = true;
+      for(var i=0; i<data.selected.length; i++) {
+        if(data.selected[i] == selected) {
+          data.selected.splice(i ,1);
+          mark = false;
+        }
+      }
+      if(mark) {
+        data.selected.push(selected);
+      }
+    }else{
+      data.selected.push(selected);
+    }
+    if(data.selected.length > 0) {
+      data.checked = true;
+    }else{
+      data.checked = false;
+    }
+    //data.checked = !data.checked;
+    //console.log(data)
+    //storage.clearMapForKey('tab2Data');
+    storage.save({
+      key: 'tab2Data',
+      id: data.hash,
+      rawData: data
+    });
+    storage.getAllDataForKey('tab2Data').then(ret => {
+      //console.log(ret);
+      savedData = ret;
+    }).catch(err => {
+     
+    });
   }
   renderCheckBox(data, name) {
     var rightText = name;
+    var myData = data;
+    console.log(this.props.savedData);
+    if(this.props.savedData){
+      for(var i=0; i<this.props.savedData.length; i++) {
+        if(this.props.savedData[i].hash == data.hash) {
+          myData = this.props.savedData[i];
+          myData.checked = false;
+          for(var k=0; k<myData.selected.length; k++) {
+            if(myData.selected[k] == name) {
+              myData.checked = true
+            }
+          }
+        }
+      }
+    }
     return (
         <CheckBox
-          onClick={()=>this.onClick(data)}
-          isChecked={data.checked}
+          onClick={()=>this.onClick(myData, rightText)}
+          isChecked={myData.checked}
           rightText={rightText}
         />);
   }

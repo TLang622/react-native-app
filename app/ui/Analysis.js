@@ -1,5 +1,4 @@
 import React, { Component, PropTypes } from 'react';
-import Storage from 'react-native-storage';
 import { 
   Navigator,
   Text,
@@ -18,32 +17,12 @@ import Index from '../ui/Index';
 export default class Tab1 extends Component {
   constructor(props){
     super(props);
-    this.state = {
-      alert: true
-    };
   }
   onIcon(){
     const { navigator } = this.props;
     if (navigator) {
-      navigator.push({
-        name : 'Index',
-        component : Index,
-      });
+      navigator.pop();
     }
-  }
-
-  componentDidMount() {
-    //console.log(this.props.data.length)
-    // storage.load({
-    //   key: 'questionsMark' + this.props.data[0].category,
-    // }).then(ret => {
-    //   console.log(ret)
-    //   navigator.push({
-    //     title: ret + '\/' + this.props.data.length,
-    //     index: ret,
-    //   });
-
-    // }).catch(err => {})
   }
   render() {
     return (
@@ -56,12 +35,6 @@ export default class Tab1 extends Component {
         navigationBar={<Toolbar title={this.props.name} onIcon ={this.onIcon.bind(this)}/>}
         sceneStyle={{}}
         renderScene={(route, navigator) => {
-          storage.load({key: 'questionsMark' + this.props.data[0].category}).then(ret => { 
-            if(ret>1 && this.state.alert) {
-              Alert.alert('标题', '是否继续上次刷题', [{text: '确定', onPress: () => {this.setState({alert: false});navigator.push({title: ret + '\/' + this.props.data.length,index: ret})}}, {text: '取消', onPress: () => {this.setState({alert: false}); storage.remove({key: 'questionsMark' + this.props.data[0].category})}}])
-            }
-          }).catch(err => {})
-          
           return (  
             <MyScene
               title={route.title}
@@ -76,11 +49,6 @@ export default class Tab1 extends Component {
                 navigator.push({
                   title: nextIndex + '\/' + this.props.data.length,
                   index: nextIndex,
-                });
-                this.setState({alert: false});
-                storage.save({
-                  key: 'questionsMark' + this.props.data[0].category,
-                  rawData: nextIndex
                 });
               }}
               onBack={() => {
@@ -117,10 +85,7 @@ class MyScene extends Component {
         };
         this.state = {
           dataSource: ds.cloneWithRows(choice),
-          answerShow: false,
           answer: anserDeal,
-          answerBtn: true,
-          errorBtn: true
         };
     }
   static propTypes = {
@@ -144,41 +109,6 @@ class MyScene extends Component {
       
     }
   }
-  onAnswer() {
-    this.setState({
-      answerShow: true,
-      answerBtn: false
-    });
-  }
-  onJoinError() {
-    //storage.clearMapForKey('errorNote');
-    this.props.data[this.props.index - 1].date = new Date();
-    storage.save({
-      key: 'errorNote',
-      id: this.props.data[this.props.index - 1].hash,
-      rawData: this.props.data[this.props.index - 1]
-    });
-    storage.getAllDataForKey('errorNote').then(ret => {
-      console.log(ret);
-    })
-    ToastAndroid.show('加入错题本', ToastAndroid.SHORT);
-    this.setState({
-      errorBtn: false
-    });
-  }
-  onRemoveError() {
-    storage.remove({
-      key: 'errorNote',
-      id: this.props.data[this.props.index - 1].hash
-    });
-    storage.getAllDataForKey('errorNote').then(ret => {
-      console.log(ret);
-    });
-    ToastAndroid.show('移出错题本', ToastAndroid.SHORT)
-    this.setState({
-      errorBtn: true
-    });
-  }
   componentWillMount() {
     this._panResponder = PanResponder.create({
       // 要求成为响应者：
@@ -196,7 +126,6 @@ class MyScene extends Component {
         // 从成为响应者开始时的累计手势移动距离为gestureState.d{x,y}
       },
       onPanResponderRelease: (evt, gestureState) => {
-        console.log(gestureState.dx)
         if(gestureState.dx > 20) {
           this.props.onBack();
         }else if(gestureState.dx < -20) {
@@ -230,15 +159,11 @@ class MyScene extends Component {
             dataSource={this.state.dataSource}
             renderRow={(rowData) => <Text>{rowData}</Text>}
           />
-          {
-            this.state.answerShow ? ( 
-              <View>
-                <Text>正确答案：{this.state.answer}</Text>
-                <Text>解析：</Text>
-                <Text>{this.props.data[this.props.index - 1].explanation}</Text>
-              </View>
-             ) : ( null )
-          }
+          <View>
+            <Text>正确答案：{this.state.answer}</Text>
+            <Text>解析：</Text>
+            <Text>{this.props.data[this.props.index - 1].explanation}</Text>
+          </View>
         </View>
         <TouchableHighlight onPress={this.props.onForward}>
           <Text>下一题</Text>
@@ -246,24 +171,6 @@ class MyScene extends Component {
         <TouchableHighlight onPress={this.props.onBack}>
           <Text>前一题</Text>
         </TouchableHighlight>
-        {
-          this.state.answerBtn ? (
-            <TouchableHighlight onPress={this.onAnswer.bind(this)}>
-              <Text>查看答案</Text>
-            </TouchableHighlight>
-            ) : (
-              this.state.errorBtn ? (
-                <TouchableHighlight onPress={this.onJoinError.bind(this)}>
-                  <Text>加入错题本</Text>
-                </TouchableHighlight>
-                ) : (
-                <TouchableHighlight onPress={this.onRemoveError.bind(this)}>
-                  <Text>移出错题本</Text>
-                </TouchableHighlight>
-                )
-            )
-        }
-        
       </View>
     )
   }
