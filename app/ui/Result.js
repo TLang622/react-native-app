@@ -14,6 +14,7 @@ import {
 } from 'react-native';
 import Index from '../ui/Index';
 import Analysis from '../ui/Analysis';
+import NetUitl from '../lib/NetUtil';
 
 export default class Tab1 extends Component {
   constructor(props){
@@ -60,7 +61,21 @@ export default class Tab1 extends Component {
     });
 
   }
-
+  componentDidMount() {
+    /*if(this.props.name == '正式考试') {
+      var postData = {
+        "profile_name": "lang",
+        "score": 88,
+        "exam_name": "仪器培训考试",
+        "test_hash": "Go76JEogx84uhi5rRLgUoiDXCoFQY5hc",
+        "user": 1184
+      };
+      NetUitl.postJson('http://api.smseec.org:8080/admin/login/?next=/admin/api/examtestscore/',postData,(responseText) => {
+          console.log(responseText);
+          
+      });
+    }*/
+  }
   onAllAnalysis() {
     const { navigator } = this.props;
     if (navigator) {
@@ -76,7 +91,7 @@ export default class Tab1 extends Component {
   }
   onErrAnalysis() {
     const { navigator } = this.props;
-    if (navigator && this.errorNote) {
+    if (navigator && this.errorNote.length > 0) {
       navigator.push({
         name : 'Analysis',
         component : Analysis,

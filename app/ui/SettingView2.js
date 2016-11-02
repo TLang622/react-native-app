@@ -18,10 +18,7 @@ export default class Tab2 extends Component {
 	onIcon(){
 		const { navigator } = this.props;
     if (navigator) {
-      navigator.push({
-        name : 'Index',
-        component : Index,
-      });
+      navigator.pop();
     }
 	}
   render() {
@@ -33,7 +30,7 @@ export default class Tab2 extends Component {
         }}
         renderScene={(route, navigator) =>
         	<View>
-        		<Toolbar onIcon ={this.onIcon.bind(this)}/>
+        		<Toolbar title='个人信息' onIcon ={this.onIcon.bind(this)}/>
         		<MyScene
 	            title={route.title}        
 	            onForward={ () => {    

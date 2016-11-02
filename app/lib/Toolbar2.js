@@ -24,7 +24,7 @@ export default class Toolbar extends Component {
   }
   componentDidMount() {
     //设置考试时间，默认45分钟
-    var leftTime=1*60*1000;
+    var leftTime= this.props.time*1000;
     this.timer = setInterval(() => { 
       var leftsecond = parseInt(leftTime/1000);
       var day=Math.floor(leftsecond/(60*60*24)); 

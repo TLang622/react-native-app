@@ -45,7 +45,7 @@ export default class Tab2 extends Component {
         name : 'Result',
         component : Result,
         params: {
-          name: '考试结果',
+          name: this.props.name,
           data: this.props.data,
           savedData: savedData
         }
@@ -64,7 +64,7 @@ export default class Tab2 extends Component {
         configureScene = {(route) => {
           return Navigator.SceneConfigs.FadeAndroid;
         }}
-        navigationBar={<Toolbar title={this.props.name} onSubmit={this.onSubmit.bind(this)} onList={this.onList.bind(this)} onIcon={this.onIcon.bind(this)}/>}
+        navigationBar={<Toolbar title={this.props.name} time={this.props.time} onSubmit={this.onSubmit.bind(this)} onList={this.onList.bind(this)} onIcon={this.onIcon.bind(this)}/>}
         sceneStyle={{}}
         renderScene={(route, navigator) => {
           return (  

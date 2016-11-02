@@ -34,8 +34,8 @@ let NetUtil = {
           fetch(url, fetchOptions)
           .then((response) => response.json())
           .then((responseText) => {
-           //  callback(JSON.parse(responseText));
-             callback(responseText);
+            //callback(JSON.parse(responseText));
+            callback(responseText);
           }).done();
             //如果找到数据，则在then方法中返回
         }).catch(err => {

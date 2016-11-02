@@ -11,7 +11,8 @@ import {
     ListView,
     StyleSheet,
     Image,
-    ScrollView
+    ScrollView,
+    TextInput
 } from 'react-native';
 import Main from '../ui/Main';
 import Tab1 from '../ui/Tab1';
@@ -26,6 +27,7 @@ import SettingView6 from '../ui/SettingView6';
 import practiceData from '../practice';
 import settingData from '../setting';
 import NetUitl from '../lib/NetUtil';
+import TestNotice from '../lib/TestNotice';
 
 export default class Index extends Component {
     constructor(props){
@@ -36,7 +38,9 @@ export default class Index extends Component {
         loaded1: false,
         loaded2: false,
         dataSource: new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2}),
-        settingSource: new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2}).cloneWithRows(settingData)
+        settingSource: new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2}).cloneWithRows(settingData),
+        notices: [],
+        invitationShow: 1,
       };
     }
 
@@ -138,8 +142,19 @@ export default class Index extends Component {
                 key: 'questions',
                 rawData: responseDeal
               });
+              storage.save({
+                key: 'questionsUntreated',
+                rawData: response.results
+              });
             });
         });   
+
+      NetUitl.getJson('http://api.smseec.org:8080/notice/',(response) => {
+        console.log(response)
+        this.setState({
+          notices: response
+        })
+      });
 
     }
 
@@ -151,20 +166,27 @@ export default class Index extends Component {
           component : Tab2,
           params: {
             name: '模拟考试',
-            data: this.state.questionsData[2]
+            data: this.state.questionsData[2],
+            time: 2700
           }
         });
       }
     }
 
     onFormalTest() {
-      const { navigator } = this.props;
-      if (navigator) {
-        navigator.push({
-          name : 'Tab3',
-          component : Tab3,
+      var invitation = this.invitation;
+      NetUitl.getJson('http://api.smseec.org:8080/v2/exam/?invitation=' + invitation + '&client=cellphone',(response) => {
+        //console.log(response);
+        this.formalTestData = response;
+        this.setState({
+          invitationShow: 3
         });
-      }
+      });
+    }
+    onInvitation() {
+      this.setState({
+        invitationShow: 2
+      });
     }
 
     renderLoadingView() {
@@ -252,6 +274,34 @@ export default class Index extends Component {
         </TouchableOpacity>
         )
     }
+    testNotice() {
+      if(this.state.invitationShow == 1) {
+        return(
+          <View>
+            <Text>{this.state.notices[0].title}</Text>
+            <Text>{this.state.notices[0].content}</Text>
+            <TouchableOpacity onPressOut={this.onInvitation.bind(this)}>
+              <Text>同意</Text>
+            </TouchableOpacity>
+          </View>
+          )
+      }else if(this.state.invitationShow == 2) {
+        return(
+          <View>
+            <Text>在下方输入邀请码</Text>
+            <TextInput onChangeText={(text)=>{this.invitation = text}} />
+            <TouchableOpacity onPress={this.onFormalTest.bind(this)}>
+               <Text>验证</Text>
+            </TouchableOpacity>
+          </View>
+          )
+      }
+      else if(this.state.invitationShow == 3) {
+        return(
+          <TestNotice data={this.formalTestData} nav={this.props} name='正式考试' />
+          )
+      }
+    }
 
     render(){
         if (!this.state.loaded1 || !this.state.loaded2) {
@@ -270,10 +320,7 @@ export default class Index extends Component {
                 </TouchableOpacity>
               </View>
               <ScrollView tabLabel='正式考试'>
-                <Text>深秋的夜晚，多的是一些凄冷，也曾于薄凉的夜风中，感受那段炙热的情感，还有在岁月中走过留下的旖旎风光。也曾把无数的相思寄语夜空的明月，回首间，少去一份心酸，多一份幸福与安然便好。也曾将深深的牵挂，寄语划过夜幕的流星，只要能在有你的地点漂落，哪怕一瞬也好，可这美好的愿景，终经不起光阴的考验。心冷了，一切也就跟着寂灭了。心字成灰，情随缘灭，一生颠沛流离，只是为了幸福，寻找心灵可以栖息的港湾。梦落潇湘，只是为了幸福，寻找生命最后的归宿。也只愿花落时，不会再是曲终人散的结局。也只愿易逝的流光里，不会再有曲终人散的伤感。相遇有梦，只是这曲曲折折的故事中，幸福的导演着开始，一路走来，却发现彼此心与心的距离越来越远，于是，浪漫的童话里，你成了主角，我却变成了配角。关于那段相遇的记忆，或许现在的你已将与我有关的故事，剔除的干干净净。思念就像歌里的一样，是一种很悬的东西，让人琢磨不定，对朋友的思念只是希望看到他过的好不好，想跟他说说自己的心里话，想跟他玩一玩、聚一聚。爱意的思念是很奇妙的，想要知道他的一切，有时候会想到他有没有在安静的时候想起你来，想拥抱他，给他幸福，想与他以前相处的一点一滴，情不自禁的脸上有笑有泪，这是思念一个最爱的人的最美妙的时候，不论你做什么事情都会想到他，尤其是做和他在一起做过的事情，你可能就会停在那里慢慢被回忆占据。也会在清晨醒刚睡醒的时候就莫名的失神，因为你还没有从梦中醒过来，还没有习惯没有他在你身边的生活。而亲人间的思念又是另一番模样，那是带着浓浓的暖意的哀愁。思念就像歌里的一样，是一种很悬的东西，让人琢磨不定，对朋友的思念只是希望看到他过的好不好，想跟他说说自己的心里话，想跟他玩一玩、聚一聚。爱意的思念是很奇妙的，想要知道他的一切，有时候会想到他有没有在安静的时候想起你来，想拥抱他，给他幸福，想与他以前相处的一点一滴，情不自禁的脸上有笑有泪，这是思念一个最爱的人的最美妙的时候，不论你做什么事情都会想到他，尤其是做和他在一起做过的事情，你可能就会停在那里慢慢被回忆占据。也会在清晨醒刚睡醒的时候就莫名的失神，因为你还没有从梦中醒过来，还没有习惯没有他在你身边的生活。而亲人间的思念又是另一番模样，那是带着浓浓的暖意的哀愁。思念就像歌里的一样，是一种很悬的东西，让人琢磨不定，对朋友的思念只是希望看到他过的好不好，想跟他说说自己的心里话，想跟他玩一玩、聚一聚。爱意的思念是很奇妙的，想要知道他的一切，有时候会想到他有没有在安静的时候想起你来，想拥抱他，给他幸福，想与他以前相处的一点一滴，情不自禁的脸上有笑有泪，这是思念一个最爱的人的最美妙的时候，不论你做什么事情都会想到他，尤其是做和他在一起做过的事情，你可能就会停在那里慢慢被回忆占据。也会在清晨醒刚睡醒的时候就莫名的失神，因为你还没有从梦中醒过来，还没有习惯没有他在你身边的生活。而亲人间的思念又是另一番模样，那是带着浓浓的暖意的哀愁。思念就像歌里的一样，是一种很悬的东西，让人琢磨不定，对朋友的思念只是希望看到他过的好不好，想跟他说说自己的心里话，想跟他玩一玩、聚一聚。爱意的思念是很奇妙的，想要知道他的一切，有时候会想到他有没有在安静的时候想起你来，想拥抱他，给他幸福，想与他以前相处的一点一滴，情不自禁的脸上有笑有泪，这是思念一个最爱的人的最美妙的时候，不论你做什么事情都会想到他，尤其是做和他在一起做过的事情，你可能就会停在那里慢慢被回忆占据。也会在清晨醒刚睡醒的时候就莫名的失神，因为你还没有从梦中醒过来，还没有习惯没有他在你身边的生活。而亲人间的思念又是另一番模样，那是带着浓浓的暖意的哀愁。思念就像歌里的一样，是一种很悬的东西，让人琢磨不定，对朋友的思念只是希望看到他过的好不好，想跟他说说自己的心里话，想跟他玩一玩、聚一聚。爱意的思念是很奇妙的，想要知道他的一切，有时候会想到他有没有在安静的时候想起你来，想拥抱他，给他幸福，想与他以前相处的一点一滴，情不自禁的脸上有笑有泪，这是思念一个最爱的人的最美妙的时候，不论你做什么事情都会想到他，尤其是做和他在一起做过的事情，你可能就会停在那里慢慢被回忆占据。也会在清晨醒刚睡醒的时候就莫名的失神，因为你还没有从梦中醒过来，还没有习惯没有他在你身边的生活。而亲人间的思念又是另一番模样，那是带着浓浓的暖意的哀愁。思念就像歌里的一样，是一种很悬的东西，让人琢磨不定，对朋友的思念只是希望看到他过的好不好，想跟他说说自己的心里话，想跟他玩一玩、聚一聚。爱意的思念是很奇妙的，想要知道他的一切，有时候会想到他有没有在安静的时候想起你来，想拥抱他，给他幸福，想与他以前相处的一点一滴，情不自禁的脸上有笑有泪，这是思念一个最爱的人的最美妙的时候，不论你做什么事情都会想到他，尤其是做和他在一起做过的事情，你可能就会停在那里慢慢被回忆占据。也会在清晨醒刚睡醒的时候就莫名的失神，因为你还没有从梦中醒过来，还没有习惯没有他在你身边的生活。而亲人间的思念又是另一番模样，那是带着浓浓的暖意的哀愁。思念就像歌里的一样，是一种很悬的东西，让人琢磨不定，对朋友的思念只是希望看到他过的好不好，想跟他说说自己的心里话，想跟他玩一玩、聚一聚。爱意的思念是很奇妙的，想要知道他的一切，有时候会想到他有没有在安静的时候想起你来，想拥抱他，给他幸福，想与他以前相处的一点一滴，情不自禁的脸上有笑有泪，这是思念一个最爱的人的最美妙的时候，不论你做什么事情都会想到他，尤其是做和他在一起做过的事情，你可能就会停在那里慢慢被回忆占据。也会在清晨醒刚睡醒的时候就莫名的失神，因为你还没有从梦中醒过来，还没有习惯没有他在你身边的生活。而亲人间的思念又是另一番模样，那是带着浓浓的暖意的哀愁。</Text>
-                <TouchableOpacity onPressOut={this.onFormalTest.bind(this)}>
-                  <Text>同意</Text>
-                </TouchableOpacity>
+                { this.testNotice() }
               </ScrollView>
               <ListView
                 tabLabel='我的'
